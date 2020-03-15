@@ -1,3 +1,7 @@
+# Not yet tested, possibly not necessary, the online interface is good for triggering the release
+# and creates correct tag ass well.
+
+
 name: Create Release
 
 on:

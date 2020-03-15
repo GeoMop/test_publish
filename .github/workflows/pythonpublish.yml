@@ -1,6 +1,11 @@
 # This workflows will upload a Python Package using Twine when a release is created
 # For more information see: https://help.github.com/en/actions/language-and-framework-guides/using-python-with-github-actions#publishing-to-package-registries
 
+# Status: 
+# - verified action triggered by the new release.
+# - correct upload to with test.pypi
+# - correct installation from test.pypi.org: pip install --index-url https://test.pypi.org/simple/ publish-test
+
 name: Upload Python Package
 
 on:
