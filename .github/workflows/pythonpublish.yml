@@ -35,3 +35,75 @@ jobs:
         python setup.py sdist bdist_wheel
         # twine upload dist/*
         twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+
+        
+---
+name: Build & upload PyPI package
+
+on:
+  push:
+    branches: [master]
+    tags: ["*"]
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+
+jobs:
+  # Upload to Test PyPI on every commit on main.
+  release-test-pypi:
+    name: Publish in-dev package to test.pypi.org
+    #environment: release-test-pypi
+    #if: github.repository_owner == 'python-attrs' && github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    needs: build-package
+
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install setuptools wheel twine
+      - name: Build
+        run: |
+          python setup.py sdist bdist_wheel
+          ls -l dist
+          
+      - name: Upload package to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          verbose: true  
+          repository-url: https://test.pypi.org/legacy/
+          # No authentication, Trusted Publisher Management via. OpenID Connect (OIDC) shuould be used 
+
+
+  # Upload to real PyPI on GitHub Releases.
+  # release-pypi:
+  #   name: Publish released package to pypi.org
+  #   environment: release-pypi
+  #   if: github.repository_owner == 'python-attrs' && github.event.action == 'published'
+  #   runs-on: ubuntu-latest
+  #   needs: build-package
+  # 
+  #   permissions:
+  #     id-token: write
+  # 
+  #   steps:
+  #     - name: Download packages built by build-and-inspect-python-package
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: Packages
+  #         path: dist
+  # 
+  #     - name: Upload package to PyPI
+  #       uses: pypa/gh-action-pypi-publish@release/v1
+  #       with:
+  #         attestations: true
